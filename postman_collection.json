@@ -1,0 +1,264 @@
+{
+  "info": {
+    "name": "Taller Mecánico API",
+    "description": "Colección completa de endpoints para el sistema de taller mecánico",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Customers",
+      "item": [
+        {
+          "name": "Listar Clientes",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/customers"
+          }
+        },
+        {
+          "name": "Crear Cliente",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/customers",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Juan Pérez\",\n    \"email\": \"juan@example.com\",\n    \"phone\": \"123456789\",\n    \"document\": \"12345678\",\n    \"address\": \"Calle Principal 123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Ver Cliente",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/customers/1"
+          }
+        },
+        {
+          "name": "Actualizar Cliente",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:8000/api/customers/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"phone\": \"987654321\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Eliminar Cliente",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:8000/api/customers/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vehicles",
+      "item": [
+        {
+          "name": "Listar Vehículos",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/vehicles"
+          }
+        },
+        {
+          "name": "Crear Vehículo",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/vehicles",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"customer_id\": 1,\n    \"brand\": \"Toyota\",\n    \"model\": \"Corolla\",\n    \"year\": \"2020\",\n    \"plate\": \"ABC-123\",\n    \"vin\": \"1HGBH41JXMN109186\",\n    \"color\": \"Rojo\",\n    \"mileage\": 50000\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Parts",
+      "item": [
+        {
+          "name": "Listar Repuestos",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/parts"
+          }
+        },
+        {
+          "name": "Repuestos con Stock Bajo",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/parts-low-stock"
+          }
+        },
+        {
+          "name": "Crear Repuesto",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/parts",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"code\": \"REP-001\",\n    \"name\": \"Filtro de Aceite\",\n    \"description\": \"Filtro de aceite para motor\",\n    \"purchase_price\": 15.50,\n    \"sale_price\": 25.00,\n    \"stock\": 10,\n    \"min_stock\": 5\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Part Purchases",
+      "item": [
+        {
+          "name": "Listar Compras",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/part-purchases"
+          }
+        },
+        {
+          "name": "Registrar Compra",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/part-purchases",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"part_id\": 1,\n    \"supplier\": \"Distribuidora XYZ\",\n    \"quantity\": 20,\n    \"unit_price\": 15.00,\n    \"purchase_date\": \"2025-12-10\",\n    \"notes\": \"Compra de emergencia\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Work Orders",
+      "item": [
+        {
+          "name": "Listar Órdenes",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/work-orders"
+          }
+        },
+        {
+          "name": "Órdenes por Estado",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/work-orders-status/pending"
+          }
+        },
+        {
+          "name": "Reporte de Utilidades",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/work-orders-profit-report?start_date=2025-12-01&end_date=2025-12-31"
+          }
+        },
+        {
+          "name": "Crear Orden",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/work-orders",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"vehicle_id\": 1,\n    \"entry_date\": \"2025-12-10\",\n    \"estimated_delivery_date\": \"2025-12-15\",\n    \"description\": \"Cambio de aceite y filtros\",\n    \"labor_cost\": 50.00,\n    \"notes\": \"Cliente solicita llamar antes de entregar\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Ver Orden",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/work-orders/1"
+          }
+        },
+        {
+          "name": "Actualizar Estado",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:8000/api/work-orders/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"in_progress\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Agregar Repuesto",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/work-orders/1/parts",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"part_id\": 1,\n    \"quantity\": 2,\n    \"unit_cost\": 15.50,\n    \"unit_price\": 25.00\n}"
+            }
+          }
+        },
+        {
+          "name": "Agregar Servicio",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/work-orders/1/services",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Alineación y Balanceo\",\n    \"description\": \"Servicio completo de alineación\",\n    \"cost\": 20.00,\n    \"price\": 40.00\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
