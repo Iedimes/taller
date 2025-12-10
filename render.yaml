@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: taller-app
+    env: php
+    plan: free
+    buildCommand: composer install --no-dev --optimize-autoloader
+    startCommand: heroku-php-apache2 public/
+    envVars:
+      - key: APP_NAME
+        value: Taller Mecanico
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: true
+      - key: APP_KEY
+        generate: true
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DATABASE_URL
+        fromDatabase:
+          name: taller-db
+          property: connectionString
+
+databases:
+  - name: taller-db
+    plan: free
+    databaseName: taller
+    user: taller
