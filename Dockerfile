@@ -26,7 +26,3 @@ RUN a2enmod rewrite
 
 # Configurar puerto dinámico para Render al iniciar (Runtime)
 CMD sh -c "sed -i 's/80/${PORT}/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf && apache2-foreground"
-
-# Ejecutar migraciones al iniciar
-# Asegúrate de que la base de datos está lista antes de ejecutar esto
-RUN php artisan migrate --force
