@@ -137,6 +137,7 @@ class WorkOrderController extends Controller
             'description' => 'sometimes|required|string',
             'labor_cost' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
+            'invoice_number' => 'nullable|string|max:50',
         ]);
 
         $workOrder->update($validated);
@@ -293,5 +294,43 @@ class WorkOrderController extends Controller
             'message' => 'Servicio actualizado exitosamente',
             'service' => $service
         ]);
+    }
+
+    /**
+     * Show the invoice print view.
+     */
+    public function printInvoice(WorkOrder $workOrder)
+    {
+        $workOrder->load(['vehicle.customer', 'workOrderParts.part', 'services']);
+
+        // Generar texto del total
+        $numberToWords = $this->numberToWords((int)$workOrder->total_price);
+
+        // Mes en texto
+        $months = [
+            1 => 'Enero',
+            2 => 'Febrero',
+            3 => 'Marzo',
+            4 => 'Abril',
+            5 => 'Mayo',
+            6 => 'Junio',
+            7 => 'Julio',
+            8 => 'Agosto',
+            9 => 'Septiembre',
+            10 => 'Octubre',
+            11 => 'Noviembre',
+            12 => 'Diciembre'
+        ];
+        $entryDate = \Carbon\Carbon::parse($workOrder->entry_date);
+        $workOrder->month_text = $months[$entryDate->month] ?? '';
+
+        return view('work-orders.invoice-print', compact('workOrder', 'numberToWords'));
+    }
+
+    private function numberToWords($number)
+    {
+        // Implementación básica, idealmente usar librería "luecano/numero-a-letras" o intl
+        // Retorno simple por ahora
+        return number_format($number, 0, ',', '.');
     }
 }

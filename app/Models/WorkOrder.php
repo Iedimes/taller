@@ -24,6 +24,7 @@ class WorkOrder extends Model
         'total_price',
         'profit',
         'notes',
+        'invoice_number',
     ];
 
     protected $casts = [

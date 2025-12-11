@@ -32,4 +32,5 @@ Route::middleware(['web'])->group(function () {
     Route::get('/work-orders/{id}', [WebController::class, 'workOrderDetails'])->name('work-orders.show');
     Route::get('/work-orders/{id}/invoice', [WebController::class, 'invoice'])->name('work-orders.invoice');
     Route::get('/reports', [WebController::class, 'reports'])->name('reports');
+    Route::get('/work-orders/{id}/print-invoice', [\App\Http\Controllers\WorkOrderController::class, 'printInvoice'])->name('work-orders.print-invoice');
 });

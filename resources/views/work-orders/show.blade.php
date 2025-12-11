@@ -219,6 +219,7 @@
         </div>
     </div>
 
+
     <!-- MODAL REPUESTO -->
     <div id="partModal" class="modal">
         <div class="modal-content">
@@ -265,6 +266,27 @@
         </div>
     </div>
 
+    <!-- MODAL FACTURA -->
+    <div id="invoiceModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Imprimir Factura</h2>
+                <span class="close" onclick="closeModal('invoiceModal')">&times;</span>
+            </div>
+            <form id="invoiceForm">
+                <div class="form-group">
+                    <label>Número de Factura Física</label>
+                    <input type="text" id="invoice_number_input" placeholder="Ej: 001-001-0000123" required>
+                    <small>Ingrese el número pre-impreso de la factura.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closeModal('invoiceModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Confirmar e Imprimir</button>
+                </div>
+            </form>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -293,8 +315,14 @@
 
                 renderOrder();
 
-                // Set invoice link
-                document.getElementById('invoiceBtn').href = `/work-orders/${ORDER_ID}/invoice`;
+                // Set invoice link setup
+                const btn = document.getElementById('invoiceBtn');
+                btn.href = "#";
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    document.getElementById('invoice_number_input').value = currentOrder.invoice_number || '';
+                    document.getElementById('invoiceModal').style.display = 'block';
+                };
 
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('content').style.display = 'block';
@@ -302,6 +330,30 @@
                 showError("Error al cargar orden: " + error.message);
             }
         }
+
+        // --- Invoice Logic ---
+        document.getElementById('invoiceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const invoiceNum = document.getElementById('invoice_number_input').value;
+
+            try {
+                // 1. Guardar el número en la orden
+                await apiRequest(`work-orders/${ORDER_ID}`, 'PUT', {
+                    invoice_number: invoiceNum
+                });
+                currentOrder.invoice_number = invoiceNum; // Actualizar local
+
+                // 2. Cerrar modal
+                closeModal('invoiceModal');
+
+                // 3. Abrir ventana de impresión
+                const printUrl = `/work-orders/${ORDER_ID}/print-invoice`;
+                window.open(printUrl, '_blank');
+
+            } catch (error) {
+                showError("Error al guardar número de factura: " + error.message);
+            }
+        });
 
         function renderOrder() {
             const o = currentOrder;
