@@ -299,9 +299,9 @@ class WorkOrderController extends Controller
     /**
      * Show the invoice print view.
      */
-    public function printInvoice(WorkOrder $workOrder)
+    public function printInvoice($id)
     {
-        $workOrder->load(['vehicle.customer', 'workOrderParts.part', 'services']);
+        $workOrder = WorkOrder::with(['vehicle.customer', 'workOrderParts.part', 'services'])->findOrFail($id);
 
         // Generar texto del total
         $numberToWords = $this->numberToWords((int)$workOrder->total_price);
@@ -327,10 +327,77 @@ class WorkOrderController extends Controller
         return view('work-orders.invoice-print', compact('workOrder', 'numberToWords'));
     }
 
-    private function numberToWords($number)
+    private function numberToWords($num)
     {
-        // Implementación básica, idealmente usar librería "luecano/numero-a-letras" o intl
-        // Retorno simple por ahora
-        return number_format($number, 0, ',', '.');
+        $num = (int)$num;
+        if ($num == 0) return 'CERO';
+
+        $basics = [
+            0 => 'CERO',
+            1 => 'UN',
+            2 => 'DOS',
+            3 => 'TRES',
+            4 => 'CUATRO',
+            5 => 'CINCO',
+            6 => 'SEIS',
+            7 => 'SIETE',
+            8 => 'OCHO',
+            9 => 'NUEVE',
+            10 => 'DIEZ',
+            11 => 'ONCE',
+            12 => 'DOCE',
+            13 => 'TRECE',
+            14 => 'CATORCE',
+            15 => 'QUINCE',
+            16 => 'DIECISEIS',
+            17 => 'DIECISIETE',
+            18 => 'DIECIOCHO',
+            19 => 'DIECINUEVE',
+            20 => 'VEINTE',
+            21 => 'VEINTIUN',
+            22 => 'VEINTIDOS',
+            23 => 'VEINTITRES',
+            24 => 'VEINTICUATRO',
+            25 => 'VEINTICINCO',
+            26 => 'VEINTISEIS',
+            27 => 'VEINTISIETE',
+            28 => 'VEINTIOCHO',
+            29 => 'VEINTINUEVE'
+        ];
+
+        if ($num <= 29) return $basics[$num];
+
+        $tens = [3 => 'TREINTA', 4 => 'CUARENTA', 5 => 'CINCUENTA', 6 => 'SESENTA', 7 => 'SETENTA', 8 => 'OCHENTA', 9 => 'NOVENTA'];
+
+        if ($num < 100) {
+            $d = floor($num / 10);
+            $u = $num % 10;
+            return $tens[$d] . ($u > 0 ? ' Y ' . $basics[$u] : '');
+        }
+
+        $hundreds = [1 => 'CIENTO', 2 => 'DOSCIENTOS', 3 => 'TRESCIENTOS', 4 => 'CUATROCIENTOS', 5 => 'QUINIENTOS', 6 => 'SEISCIENTOS', 7 => 'SETECIENTOS', 8 => 'OCHOCIENTOS', 9 => 'NOVECIENTOS'];
+
+        if ($num < 1000) {
+            if ($num == 100) return 'CIEN';
+            $c = floor($num / 100);
+            $r = $num % 100;
+            return $hundreds[$c] . ($r > 0 ? ' ' . $this->numberToWords($r) : '');
+        }
+
+        if ($num < 1000000) {
+            $m = floor($num / 1000);
+            $r = $num % 1000;
+            $str = ($m == 1 ? 'MIL' : $this->numberToWords($m) . ' MIL');
+            return $str . ($r > 0 ? ' ' . $this->numberToWords($r) : '');
+        }
+
+        if ($num < 1000000000) {
+            $m = floor($num / 1000000);
+            $r = $num % 1000000;
+            $str = ($m == 1 ? 'UN MILLON' : $this->numberToWords($m) . ' MILLONES');
+            return $str . ($r > 0 ? ' ' . $this->numberToWords($r) : '');
+        }
+
+        return number_format($num);
     }
 }

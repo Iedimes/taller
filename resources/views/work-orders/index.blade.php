@@ -122,6 +122,27 @@
             </form>
         </div>
     </div>
+    <!-- Invoice Modal -->
+    <div id="invoiceModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Imprimir Factura</h2>
+                <span class="close" onclick="closeInvoiceModal()">&times;</span>
+            </div>
+            <form id="invoiceForm">
+                <input type="hidden" id="invoiceOrderId">
+                <div class="form-group">
+                    <label>Número de Factura Física</label>
+                    <input type="text" id="invoice_number_input" placeholder="Ej: 001-001-0000123" required>
+                    <small>Ingrese el número pre-impreso de la factura.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeInvoiceModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Confirmar e Imprimir</button>
+                </div>
+            </form>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -217,11 +238,11 @@
                 <td><a href="/work-orders/${order.id}" style="font-weight:bold; color:#2980b9; text-decoration:none">#${order.order_number}</a></td>
                 <td>
                     ${order.vehicle ? `
-                                    <div>🚗 <strong>${order.vehicle.plate}</strong></div>
-                                    <div style="font-size:12px; color:#666">
-                                        ${(order.vehicle.customer || {}).name || ((order.vehicle.customer_data || {}).name || '-')}
-                                    </div>
-                                ` : 'Vehículo no asignado'}
+                                        <div>🚗 <strong>${order.vehicle.plate}</strong></div>
+                                        <div style="font-size:12px; color:#666">
+                                            ${(order.vehicle.customer || {}).name || ((order.vehicle.customer_data || {}).name || '-')}
+                                        </div>
+                                    ` : 'Vehículo no asignado'}
                 </td>
                 <td>${formatDate(order.entry_date)}</td>
                 <td>
@@ -232,7 +253,7 @@
                 <td style="font-weight:bold; color:#2c3e50">${formatMoney(order.total_price)}</td>
                 <td>
                     <a href="/work-orders/${order.id}" class="btn-icon" style="text-decoration:none" title="Ver Detalles / Editar">✏️</a>
-                    <a href="/work-orders/${order.id}/invoice" target="_blank" class="btn-icon" style="text-decoration:none" title="Imprimir Factura">🖨️</a>
+                    <button class="btn-icon" onclick="openInvoiceModal(${order.id}, '${order.invoice_number || ''}')" title="Imprimir Factura">🖨️</button>
                     <button class="btn-icon" onclick="deleteOrder(${order.id})" title="Eliminar">🗑️</button>
                 </td>
             </tr>
@@ -352,8 +373,53 @@
 
         window.onclick = function(event) {
             if (event.target == document.getElementById('modal')) closeModal();
+            if (event.target == document.getElementById('modal')) closeModal();
             if (event.target == document.getElementById('statusModal')) closeStatusModal();
+            if (event.target == document.getElementById('invoiceModal')) closeInvoiceModal();
         }
+
+        // --- Invoice Modal Logic ---
+        function openInvoiceModal(id, currentInvoiceNum) {
+            document.getElementById('invoiceForm').reset();
+            document.getElementById('invoiceOrderId').value = id;
+            document.getElementById('invoice_number_input').value = (currentInvoiceNum && currentInvoiceNum !== 'null') ?
+                currentInvoiceNum : '';
+            document.getElementById('invoiceModal').style.display = 'block';
+        }
+
+        function closeInvoiceModal() {
+            document.getElementById('invoiceModal').style.display = 'none';
+        }
+
+        document.getElementById('invoiceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('invoiceOrderId').value;
+            const invoiceNum = document.getElementById('invoice_number_input').value;
+
+            try {
+                // 1. Guardar el número en la orden
+                await apiRequest(`work-orders/${id}`, 'PUT', {
+                    invoice_number: invoiceNum
+                });
+
+                // Actualizar array local si existe
+                const order = orders.find(o => o.id == id);
+                if (order) order.invoice_number = invoiceNum;
+
+                // 2. Cerrar modal
+                closeInvoiceModal();
+
+                // 3. Abrir ventana de impresión
+                const printUrl = `/work-orders/${id}/print-invoice`;
+                window.open(printUrl, '_blank');
+
+                // Recargar lista para actualizar el dato visualmente si fuera necesario
+                // loadOrders();
+
+            } catch (error) {
+                showError("Error al guardar número de factura: " + error.message);
+            }
+        });
 
         loadOrders();
     </script>
